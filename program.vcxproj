@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A1B2C3D4-1234-5678-9ABC-DEF012345678}</ProjectGuid>
+    <RootNamespace>program</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+   
+    <VcpkgRoot Condition="'$(VCPKG_ROOT)'!=''">$(VCPKG_ROOT)</VcpkgRoot>
+    <VcpkgRoot Condition="'$(VcpkgRoot)'==''">C:\vcpkg</VcpkgRoot>
+    <OpenCVDir>$(VcpkgRoot)\installed\x86-windows</OpenCVDir>
+    <OpenCVInclude>$(OpenCVDir)\include\opencv4</OpenCVInclude>
+    <OpenCVLib>$(OpenCVDir)\debug\lib</OpenCVLib>
+    <OpenCVBin>$(OpenCVDir)\debug\bin</OpenCVBin>
+    <OpenCVRuntimeDir>$(ProjectDir)runtime\opencv\$(Configuration)\</OpenCVRuntimeDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(ProjectDir)obj\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>program</TargetName>
+    <LocalDebuggerEnvironment>PATH=$(OpenCVRuntimeDir);$(PATH)</LocalDebuggerEnvironment>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <Optimization>MaxSpeed</Optimization>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;CONSOLE_IO;USE_IMAGE_VIEW;USE_VISION;USE_LEGACY_VISION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(OpenCVInclude);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(OutDir)program.exe</OutputFile>
+      <AdditionalDependencies>$(ProjectDir)image_transfer.lib;$(ProjectDir)atlsnd.lib;$(ProjectDir)strmbasd.lib;mfplat.lib;mf.lib;mfreadwrite.lib;mfuuid.lib;shlwapi.lib;propsys.lib;msvcrtd.lib;winmm.lib;wsock32.lib;legacy_stdio_definitions.lib;user32.lib;opencv_core4d.lib;opencv_imgproc4d.lib;opencv_imgcodecs4d.lib;opencv_videoio4d.lib;opencv_highgui4d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir);$(OpenCVLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmtd;libcd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <PreBuildEvent>
+      <Command>if not exist "$(OpenCVInclude)\opencv2\opencv.hpp" (
+  echo [ERROR] OpenCV not found at "$(OpenCVDir)".
+  echo         Run:  "$(VcpkgRoot)\vcpkg.exe" install opencv4:x86-windows
+  echo         Or set the VCPKG_ROOT environment variable / VcpkgRoot property.
+  exit /b 1
+)
+if not exist "$(ProjectDir)image_view_started.tmp" (
+  start "" "$(ProjectDir)image_view\image_view.exe"
+  echo started &gt; "$(ProjectDir)image_view_started.tmp"
+)</Command>
+      <Message>Verifying OpenCV (vcpkg x86-windows) and launching image_view.exe...</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>del /q "$(ProjectDir)image_view_started.tmp" 2&gt;nul
+if not exist "$(OpenCVRuntimeDir)" mkdir "$(OpenCVRuntimeDir)"
+echo Copying OpenCV runtime DLLs (debug variants) to $(OpenCVRuntimeDir)...
+xcopy /Y /Q /D "$(OpenCVBin)\opencv_core4d.dll"      "$(OpenCVRuntimeDir)" &gt;nul
+xcopy /Y /Q /D "$(OpenCVBin)\opencv_imgproc4d.dll"   "$(OpenCVRuntimeDir)" &gt;nul
+xcopy /Y /Q /D "$(OpenCVBin)\opencv_imgcodecs4d.dll" "$(OpenCVRuntimeDir)" &gt;nul
+xcopy /Y /Q /D "$(OpenCVBin)\opencv_videoio4d.dll"   "$(OpenCVRuntimeDir)" &gt;nul
+xcopy /Y /Q /D "$(OpenCVBin)\opencv_highgui4d.dll"   "$(OpenCVRuntimeDir)" &gt;nul
+for %%D in ("$(OpenCVBin)\*.dll") do (
+  if not exist "$(OpenCVRuntimeDir)%%~nxD" copy /Y "%%D" "$(OpenCVRuntimeDir)" &gt;nul 2&gt;&amp;1
+)</Command>
+      <Message>Copying OpenCV runtime DLLs to runtime directory...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="program.cpp" />
+    <ClCompile Include="Parameters.cpp" />
+    <ClCompile Include="Simulation\Safety.cpp" />
+    <ClCompile Include="Simulation\Simulation.cpp" />
+    <ClCompile Include="robot_command\RobotIO.cpp" />
+    <ClCompile Include="Strategy\Strategy.cpp" />
+    <ClCompile Include="Simulation\DebugOverlay.cpp" />
+    <ClCompile Include="Strategy\map\ArenaMap.cpp" />
+    <ClCompile Include="Strategy\map\GridPlanner.cpp" />
+    <ClCompile Include="Strategy\map\Mode5AttackPlanner.cpp" />
+    <ClCompile Include="timer.cpp" />
+    <ClCompile Include="vision\calibration.cpp" />
+    <ClCompile Include="vision\VisionSystem.cpp" />
+    <ClCompile Include="vision\VisionCalibration.cpp" />
+    <ClCompile Include="vision\vision_main.cpp" />
+    <ClCompile Include="vision\vision.cpp" />
+    <ClCompile Include="vision\VisionSystemLegacy.cpp" />
+    <ClCompile Include="vision\vision_helpers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="image_transfer.h" />
+    <ClInclude Include="timer.h" />
+    <ClInclude Include="robot_command\serial.h" />
+    <ClInclude Include="Parameters.h" />
+    <ClInclude Include="CoreTypes.h" />
+    <ClInclude Include="Simulation\Safety.h" />
+    <ClInclude Include="Simulation\Simulation.h" />
+    <ClInclude Include="robot_command\RobotIO.h" />
+    <ClInclude Include="Strategy\Strategy.h" />
+    <ClInclude Include="Simulation\DebugOverlay.h" />
+    <ClInclude Include="Strategy\map\ArenaMap.h" />
+    <ClInclude Include="Strategy\map\GridPlanner.h" />
+    <ClInclude Include="Strategy\map\Mode5AttackPlanner.h" />
+    <ClInclude Include="vision\VisionTypes.h" />
+    <ClInclude Include="vision\VisionConfig.h" />
+    <ClInclude Include="vision\VisionSystem.h" />
+    <ClInclude Include="vision\vision.h" />
+    <ClInclude Include="vision\LegacyVisionConfig.h" />
+    <ClInclude Include="vision\VisionSystemLegacy.h" />
+    <ClInclude Include="vision\vision_helpers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="image_transfer.lib" />
+    <Library Include="atlsnd.lib" />
+    <Library Include="strmbasd.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

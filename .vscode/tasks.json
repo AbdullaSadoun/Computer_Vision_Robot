@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build o2D_Sim",
+      "type": "process",
+      "command": "C:\\Program Files\\Microsoft Visual Studio\\18\\Insiders\\MSBuild\\Current\\Bin\\MSBuild.exe",
+      "args": [
+        "${workspaceFolder}\\program.vcxproj",
+        "/p:Configuration=Debug",
+        "/p:Platform=Win32"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Run o2D_Sim",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "set \"PATH=${workspaceFolder}\\runtime\\opencv\\Debug;%PATH%\" && cd /d \"${workspaceFolder}\" && program.exe"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build and Run o2D_Sim",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Build o2D_Sim",
+        "Run o2D_Sim"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}
