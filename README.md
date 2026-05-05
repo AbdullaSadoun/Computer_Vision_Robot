@@ -1,6 +1,6 @@
 # o2D_Sim — Codebase & software context
 
-This document describes the **2D robot arena simulator + overhead-vision + Bluetooth hardware control** project under `Project/o2D_Sim/`. It is written so someone could **rebuild the system** from first principles: libraries, architecture, control flow, vision, AI strategies, mode behavior, and a history of notable fixes.
+This document describes the **2D robot arena simulator + overhead-vision + Bluetooth hardware control** project under `Project/o2D_Sim/`. First principles: libraries, architecture, control flow, vision, AI strategies, mode behavior, and a history of notable fixes.
 
 ---
 
